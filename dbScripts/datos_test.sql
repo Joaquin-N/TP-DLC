@@ -1,3 +1,6 @@
+USE [SearchEngine]
+GO
+
 INSERT INTO Documentos (nombre) VALUES ('d1')
 INSERT INTO Documentos (nombre) VALUES ('d2')
 INSERT INTO Documentos (nombre) VALUES ('d3')

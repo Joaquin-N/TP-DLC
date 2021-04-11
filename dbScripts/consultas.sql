@@ -1,3 +1,6 @@
+USE [SearchEngine]
+GO
+
 --VOCABULARIO
 SELECT termino, COUNT(*) as nr, MAX(tf) as max_tf
 FROM Posteo p
