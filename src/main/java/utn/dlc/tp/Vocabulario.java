@@ -10,6 +10,10 @@ public class Vocabulario {
        v = new HashMap<>();
     }
     
+    public void insertarTermino(Termino t){
+        v.put(t.getPalabra(), t);        
+    }
+    
     public void insertarPalabra(String p){
         Termino t = v.get(p);
         if(t == null)

@@ -22,6 +22,12 @@ public class Termino {
         this.nr = 1;
         this.max_tf = 0;
     }
+    
+    public Termino(String palabra, int nr, int max_tf) {
+        this.palabra = palabra;
+        this.nr = nr;
+        this.max_tf = max_tf;
+    }
 
     public void incrementarNr(){
         nr++;
