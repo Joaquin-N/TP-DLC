@@ -1,6 +1,12 @@
 package utn.dlc.tp;
 
-public class Termino {
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Termino implements Serializable{
+    @Id
     private String palabra;
     private int nr;
     private int max_tf;
@@ -17,6 +23,9 @@ public class Termino {
         return max_tf;
     }
 
+    public Termino(){
+    }
+    
     public Termino(String palabra) {
         this.palabra = palabra;
         this.nr = 1;

@@ -5,33 +5,26 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.HashMap;
-/*import javax.persistence.EntityManager;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;*/
+import javax.persistence.Persistence;
 
 public class Indexador {
     private final String path = FileSystemView.getFileSystemView().getHomeDirectory() + "\\DLC";
 
     private Vocabulario v = new Vocabulario();
-    /*EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
-    EntityManager em = emf.createEntityManager();*/
+    private HashMap<String, Palabra> diccionario = new HashMap<>();
+    
     
     public Vocabulario generarIndice(){
         try{
+            
             for(File a : obtenerArchivos())
                 indexarArchivo(a);
-
-            /*EntityTransaction t = em.getTransaction();
-            t.begin();
             
-            em.createNativeQuery(
-            "SELECT t.palabra, COUNT(*) as nr, MAX(p.tf) as max_tf "
-            + "FROM Posteo p JOIN Terminos t ON t.id = p.id_termino "
-            + "GROUP BY t.palabra", Termino.class).getResultStream().forEach(
-            (x)-> v.insertarTermino((Termino) x));
-            t.commit();*/
-            
+            cargarVocabulario();            
+       
             return v;
 
         } catch (Exception e) {
@@ -47,8 +40,25 @@ public class Indexador {
         return archivos;
     }
     
+    private void cargarVocabulario(){
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction t = em.getTransaction();
+            t.begin();
+            em.createNativeQuery(                  
+                "SELECT pa.palabra, COUNT(*) as nr, MAX(p.tf) as max_tf "
+                + "FROM Posteo p JOIN Palabras pa ON pa.id = p.id_palabra "
+                + "GROUP BY pa.palabra", Termino.class).getResultStream().forEach(
+                (x)-> v.insertarTermino((Termino) x));
+            t.commit();
+            em.close();
+            emf.close();
+    }
+    
     private void indexarArchivo(File archivo){
-        HashMap<String, Palabra> hm = new HashMap<>();
+        HashMap<Palabra, Posteo> posteos = new HashMap<>();
+        Documento doc = new Documento(archivo.getName());
+        
         try (Scanner sc = new Scanner(archivo))
         {
             String palabraAux = "";
@@ -92,15 +102,7 @@ public class Indexador {
                             palabra = palabra.toLowerCase();
                             if (!palabraCortada)
                             {
-                                /*Palabra p = hm.get(palabra);
-                                if(p == null){
-                                String file = archivo.getName();
-                                hm.put(palabra, new Palabra(palabra, file));
-                                }
-                                else{
-                                p.incrementarTf();
-                                }*/
-                                v.insertarPalabra(palabra);
+                                agregarPosteo(posteos, palabra, doc);                                
                             }
                             else
                             {
@@ -111,16 +113,42 @@ public class Indexador {
                 }
             }
                                
-            /*for(Palabra p : hm.values()){
-            em.persist(p);
-            }*/
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
+            EntityManager em = emf.createEntityManager();
+            EntityTransaction t = em.getTransaction();
+            t.begin();
+            for(Posteo p : posteos.values()){
+                em.merge(p);
+            }
+            t.commit();
+            em.close();
+            emf.close();
             
             
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }
     }
+    
+    private void agregarPosteo(HashMap<Palabra, Posteo> posteos, String palabra, Documento doc){
+        Palabra pal = obtenerPalabra(palabra);
+        Posteo post = posteos.get(pal);
+        if(post == null){
+            post = new Posteo(pal, doc);
+            posteos.put(pal, post);
+        }
+        post.incrementarContador();
+    }
 
+    private Palabra obtenerPalabra(String pstr){
+        Palabra p = diccionario.get(pstr);
+        if(p == null){
+            p = new Palabra(pstr);
+            diccionario.put(pstr, p);
+        }
+        return p;
+    }
+    
     private String[] dividirPalabras(String linea){
         String[] palabras = linea.split(" ");
         return palabras;

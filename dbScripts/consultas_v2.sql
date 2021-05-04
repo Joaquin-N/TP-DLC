@@ -2,13 +2,13 @@ USE [SearchEngine]
 GO
 
 --VOCABULARIO
-SELECT t.palabra, COUNT(*) as nr, MAX(p.tf) as max_tf
-FROM Posteo p JOIN Terminos t ON t.id = p.id_termino
-GROUP BY t.palabra
+SELECT pa.palabra, COUNT(*) as nr, MAX(p.tf) as max_tf
+FROM Posteo p JOIN Palabras pa ON pa.id = p.id_palabra
+GROUP BY pa.palabra
 
 --POSTEO
-SELECT t.palabra, d.nombre as documento, p.tf
+SELECT pa.palabra, d.documento, p.tf
 FROM Posteo p 
 JOIN Documentos d ON p.id_documento = d.id
-JOIN Terminos t ON p.id_termino = t.id
-ORDER BY t.palabra, p.tf DESC
+JOIN Palabras pa ON p.id_palabra = pa.id
+ORDER BY pa.palabra, p.tf DESC
