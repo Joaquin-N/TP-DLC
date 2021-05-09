@@ -1,5 +1,5 @@
 
-package utn.dlc.tp;
+package entidades;
 
 import java.io.Serializable;
 import javax.persistence.*;

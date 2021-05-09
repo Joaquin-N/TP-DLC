@@ -1,11 +1,11 @@
-package utn.dlc.tp;
+package entidades;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class Termino implements Serializable{
+public class Termino implements Serializable, Comparable<Termino>{
     @Id
     private String palabra;
     private int nr;
@@ -41,9 +41,17 @@ public class Termino implements Serializable{
     public void incrementarNr(){
         nr++;
     }
+    
+    @Override
+    // Odenamiento menor a mayor
+    public int compareTo(Termino that) {
+        return this.nr - that.nr;
+    }
 
     @Override
     public String toString() {
-        return " nr=" + nr + " | palabra=" + palabra + "<br>";
+        return " nr=" + nr + " | palabra=" + palabra; // + "<br>";
     }
+
+    
 }

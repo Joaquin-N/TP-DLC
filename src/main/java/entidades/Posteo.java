@@ -1,4 +1,4 @@
-package utn.dlc.tp;
+package entidades;
 
 import java.io.Serializable;
 import javax.persistence.*;
@@ -18,7 +18,7 @@ public class Posteo implements Serializable {
     private Documento documento;
     
     @Column(name = "tf")
-    private int contador;
+    private int tf;
 
     public Posteo() {
     }
@@ -26,11 +26,25 @@ public class Posteo implements Serializable {
     public Posteo(Palabra palabra, Documento documento) {
         this.palabra = palabra;
         this.documento = documento;
-        this.contador = 0;
+        this.tf = 0;
     }
     
+    public Posteo(Palabra palabra, Documento documento, int tf) {
+        this.palabra = palabra;
+        this.documento = documento;
+        this.tf = tf;
+    }
+
+    public Documento getDocumento() {
+        return documento;
+    }
+
+    public int getTf() {
+        return tf;
+    }
+        
     public void incrementarContador(){
-        contador++;
+        tf++;
     }
     
     

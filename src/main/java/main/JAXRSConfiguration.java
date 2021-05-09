@@ -1,4 +1,4 @@
-package utn.dlc.tp;
+package main;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
