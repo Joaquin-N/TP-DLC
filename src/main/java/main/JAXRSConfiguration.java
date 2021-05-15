@@ -7,6 +7,6 @@ import javax.ws.rs.core.Application;
  * Configures JAX-RS for the application.
  * @author Juneau
  */
-@ApplicationPath("/tp")
+@ApplicationPath("/")
 public class JAXRSConfiguration extends Application {    
 }

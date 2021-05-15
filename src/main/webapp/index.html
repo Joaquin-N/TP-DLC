@@ -5,6 +5,10 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <form name="formulario" method="post" action="/send.php" enctype="multipart/form-data">
+  <!-- ¡No olvides el enctype! -->
+  <!-- Campo de selección de archivo -->
+        <input type="file" name="adjunto" accept=".pdf,.jpg,.png" multiple />
+</form>
     </body>
 </html>

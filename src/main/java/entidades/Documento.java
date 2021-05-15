@@ -24,6 +24,10 @@ public class Documento implements Serializable, Comparable<Documento> {
         this.documento = documento;
     }
 
+    public String getDocumento() {
+        return documento;
+    }   
+
     public double getIr() {
         return ir;
     }

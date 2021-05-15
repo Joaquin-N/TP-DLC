@@ -19,6 +19,11 @@ public class Palabra implements Serializable{
     
     public Palabra(String palabra) {
         this.palabra = palabra;
-
     }
+
+    public String getPalabra() {
+        return palabra;
+    }
+    
+    
 }

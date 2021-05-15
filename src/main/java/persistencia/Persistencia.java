@@ -9,7 +9,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import entidades.Documento;
+import entidades.Palabra;
 import entidades.Posteo;
+import java.util.HashMap;
 
 public class Persistencia {
     
@@ -28,6 +30,19 @@ public class Persistencia {
         em.close();
         emf.close();
         return v;
+    }
+    
+    public static HashMap<String, Palabra> buscarDiccionario(){
+        HashMap<String, Palabra> dic = new HashMap();
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction t = em.getTransaction();
+        t.begin();
+        em.createNativeQuery("SELECT * FROM palabras", Palabra.class).getResultStream().forEach((p) -> dic.put(((Palabra)p).getPalabra(), (Palabra)p));
+        t.commit();
+        em.close();
+        emf.close();
+        return dic;
     }
     
     public static void insertarPosteos(Collection<Posteo> values){

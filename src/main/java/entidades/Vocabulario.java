@@ -8,6 +8,10 @@ public class Vocabulario {
     public Vocabulario(){
        v = new HashMap<>();
     }
+
+    public HashMap<String, Termino> getV() {
+        return v;
+    }
     
     public void insertarTermino(Termino t){
         v.put(t.getPalabra(), t);        

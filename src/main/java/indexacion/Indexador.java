@@ -10,6 +10,11 @@ import java.util.Scanner;
 import java.util.HashMap;
 import persistencia.Persistencia;
 import entidades.Vocabulario;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 public class Indexador {
     private final String path = FileSystemView.getFileSystemView().getHomeDirectory() + "\\DLC";
@@ -24,9 +29,28 @@ public class Indexador {
             for(File a : obtenerArchivos())
                 indexarArchivo(a);
             
-            Persistencia.cargarVocabulario();            
-       
+            v = Persistencia.cargarVocabulario();            
+             
             return v;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public String agregarArchivo(){
+        File archivo = new File(path + "2/1donq10.txt");
+        try{ 
+            File nuevo = new File(path, archivo.getName());
+            if(nuevo.exists()){
+                return "Archivo ya existe";
+            }
+            Files.copy(Paths.get(archivo.getAbsolutePath()), Paths.get(nuevo.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
+
+            diccionario = Persistencia.buscarDiccionario();
+            indexarArchivo(archivo);      
+            return "OK";
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -42,6 +66,28 @@ public class Indexador {
     }
         
     private void indexarArchivo(File archivo){
+        HashMap<Palabra, Posteo> posteos = new HashMap<>();
+        Documento doc = new Documento(archivo.getName());
+        
+        Persistencia.insertarDocumento(doc);
+        
+        try (Scanner sc = new Scanner(new BufferedReader(new FileReader(archivo))))
+        {
+            sc.useDelimiter("[^a-zA-Z\\-']");        
+            while(sc.hasNext()) {
+                String palabra = sc.next();
+                if (!palabra.isEmpty())
+                    agregarPosteo(posteos, palabra, doc);
+            }       
+                               
+            Persistencia.insertarPosteos(posteos.values());
+                  
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+    }
+    /*
+    private void indexarArchivo2(File archivo){
         HashMap<Palabra, Posteo> posteos = new HashMap<>();
         Documento doc = new Documento(archivo.getName());
         
@@ -108,6 +154,7 @@ public class Indexador {
             ex.printStackTrace();
         }
     }
+    */
     
     private void agregarPosteo(HashMap<Palabra, Posteo> posteos, String palabra, Documento doc){
         Palabra pal = obtenerPalabra(palabra);
