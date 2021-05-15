@@ -42,12 +42,14 @@ public class Indexador {
     public String agregarArchivo(){
         File archivo = new File(path + "2/1donq10.txt");
         try{ 
+            // Copia el archivo al directorio con los demás archivos
             File nuevo = new File(path, archivo.getName());
             if(nuevo.exists()){
                 return "Archivo ya existe";
             }
             Files.copy(Paths.get(archivo.getAbsolutePath()), Paths.get(nuevo.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
 
+            // Recupera las palabras existentes en la BD
             diccionario = Persistencia.buscarDiccionario();
             indexarArchivo(archivo);      
             return "OK";
@@ -58,6 +60,7 @@ public class Indexador {
         }
     }
 
+    // Lista los archivos del directorio
     private File[] obtenerArchivos() throws Exception{
         File carpeta = new File(path);
         File[] archivos = carpeta.listFiles();
@@ -73,6 +76,7 @@ public class Indexador {
         
         try (Scanner sc = new Scanner(new BufferedReader(new FileReader(archivo))))
         {
+            // Delimitadores de palabras
             sc.useDelimiter("[^a-zA-Z\\-']");        
             while(sc.hasNext()) {
                 String palabra = sc.next();
@@ -80,6 +84,7 @@ public class Indexador {
                     agregarPosteo(posteos, palabra, doc);
             }       
                                
+            // Inserta todos los terminos del documento a la bd
             Persistencia.insertarPosteos(posteos.values());
                   
         } catch (FileNotFoundException ex) {
@@ -156,6 +161,8 @@ public class Indexador {
     }
     */
     
+    // Creo un nuevo posteo si la palabra no apareció todavia en el docuemento
+    // En caso contrario aumento el contador de la palabra
     private void agregarPosteo(HashMap<Palabra, Posteo> posteos, String palabra, Documento doc){
         Palabra pal = obtenerPalabra(palabra);
         Posteo post = posteos.get(pal);
@@ -166,6 +173,7 @@ public class Indexador {
         post.incrementarContador();
     }
 
+    // Gestiona el diccionario de palabras, para no tener entradas repetidas en la BD
     private Palabra obtenerPalabra(String pstr){
         Palabra p = diccionario.get(pstr);
         if(p == null){

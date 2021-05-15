@@ -23,11 +23,14 @@ public class Ranking {
             ld.add(d);
         }        
         
+        // Calculamos el ir (indice de relevancia) del documento para el término dado
         double wr = tf * Math.log((double)N/nr);
+        // Lo sumamos al acumulador de ir del documento
         d.sumarIr(wr);
     }
     
     public ArrayList<Documento> getRanking(){
+        // Ordenamos los documentos por mayor ir
         ld.sort((d1, d2) -> d1.compareTo(d2));
         return ld;
     }
