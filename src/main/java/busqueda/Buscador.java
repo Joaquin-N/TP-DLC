@@ -7,19 +7,31 @@ import persistencia.Persistencia;
 import entidades.Termino;
 import entidades.Vocabulario;
 import entidades.Posteo;
+import java.io.Serializable;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 
-public class Buscador {    
+@SessionScoped
+public class Buscador implements Serializable{  
+    @Inject Persistencia p;
+    
     Vocabulario v;
     int R = 3; //cantidad de docuemntos relevantes
     int N; //cantidad de documentos
     Ranking rank; 
 
     public Buscador() {
-        v = Persistencia.cargarVocabulario();
-        N = Persistencia.obtenerCantidadDocumentos();
-        rank = new Ranking(N);
+        
         //buscar("simple test of working");
     }  
+    
+    @PostConstruct
+    private void initialize(){
+        v = p.cargarVocabulario();
+        N = p.obtenerCantidadDocumentos();
+        rank = new Ranking(N);
+    }
     
     public List<Documento> buscar(String querry){
         String[] palabras = querry.split(" ");
@@ -39,7 +51,7 @@ public class Buscador {
         
          // Buscamos los R primeros documentos de cada término y los ubicamos en el ranking
         for (Termino t : terminos) {
-            List<Posteo> posteos = Persistencia.buscarPosteos(t.getPalabra(), R);
+            List<Posteo> posteos = p.buscarPosteos(t.getPalabra(), R);
             posteos.forEach((p) -> rank.procesarDocumento(p.getDocumento(), p.getTf(), t.getNr()));
         }
         

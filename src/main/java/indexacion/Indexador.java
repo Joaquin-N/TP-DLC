@@ -12,13 +12,19 @@ import persistencia.Persistencia;
 import entidades.Vocabulario;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Inject;
 
-public class Indexador {
+@SessionScoped
+public class Indexador implements Serializable{
     private final String path = FileSystemView.getFileSystemView().getHomeDirectory() + "\\DLC";
 
+    @Inject Persistencia p;
+    
     private Vocabulario v = new Vocabulario();
     private HashMap<String, Palabra> diccionario = new HashMap<>();
     
@@ -29,7 +35,7 @@ public class Indexador {
             for(File a : obtenerArchivos())
                 indexarArchivo(a);
             
-            v = Persistencia.cargarVocabulario();            
+            v = p.cargarVocabulario();            
              
             return v;
 
@@ -50,7 +56,7 @@ public class Indexador {
             Files.copy(Paths.get(archivo.getAbsolutePath()), Paths.get(nuevo.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
 
             // Recupera las palabras existentes en la BD
-            diccionario = Persistencia.buscarDiccionario();
+            diccionario = p.buscarDiccionario();
             indexarArchivo(archivo);      
             return "OK";
 
@@ -72,7 +78,7 @@ public class Indexador {
         HashMap<Palabra, Posteo> posteos = new HashMap<>();
         Documento doc = new Documento(archivo.getName());
         
-        Persistencia.insertarDocumento(doc);
+        p.insertarDocumento(doc);
         
         try (Scanner sc = new Scanner(new BufferedReader(new FileReader(archivo))))
         {
@@ -85,7 +91,7 @@ public class Indexador {
             }       
                                
             // Inserta todos los terminos del documento a la bd
-            Persistencia.insertarPosteos(posteos.values());
+            p.insertarPosteos(posteos.values().toArray());
                   
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -175,11 +181,11 @@ public class Indexador {
 
     // Gestiona el diccionario de palabras, para no tener entradas repetidas en la BD
     private Palabra obtenerPalabra(String pstr){
-        Palabra p = diccionario.get(pstr);
-        if(p == null){
-            p = new Palabra(pstr);
-            diccionario.put(pstr, p);
+        Palabra pal = diccionario.get(pstr);
+        if(pal == null){
+            pal = new Palabra(pstr);
+            diccionario.put(pstr, pal);
         }
-        return p;
+        return pal;
     }   
 }

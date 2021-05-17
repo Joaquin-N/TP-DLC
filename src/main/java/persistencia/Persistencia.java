@@ -12,41 +12,41 @@ import entidades.Documento;
 import entidades.Palabra;
 import entidades.Posteo;
 import java.util.HashMap;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 
+@ApplicationScoped
 public class Persistencia {
+    EntityManagerFactory emf; 
+    int batchSize = 100;
+
+    @PostConstruct
+    public void initialize(){
+        emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
+    }    
     
-    public static Vocabulario cargarVocabulario(){
+    public Vocabulario cargarVocabulario(){
         Vocabulario v = new Vocabulario();
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
         EntityManager em = emf.createEntityManager();
-        EntityTransaction t = em.getTransaction();
-        t.begin();
         em.createNativeQuery(                  
             "SELECT pa.palabra, COUNT(*) as nr, MAX(p.tf) as max_tf "
             + "FROM Posteo p JOIN Palabras pa ON pa.id = p.id_palabra "
             + "GROUP BY pa.palabra", Termino.class).getResultStream().forEach(
             (x)-> v.insertarTermino((Termino) x));
-        t.commit();
         em.close();
-        emf.close();
         return v;
     }
     
-    public static HashMap<String, Palabra> buscarDiccionario(){
+    public HashMap<String, Palabra> buscarDiccionario(){
         HashMap<String, Palabra> dic = new HashMap();
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
         EntityManager em = emf.createEntityManager();
-        EntityTransaction t = em.getTransaction();
-        t.begin();
         em.createNativeQuery("SELECT * FROM palabras", Palabra.class).getResultStream().forEach((p) -> dic.put(((Palabra)p).getPalabra(), (Palabra)p));
-        t.commit();
         em.close();
-        emf.close();
         return dic;
     }
     
-    public static void insertarPosteos(Collection<Posteo> values){
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
+    /*
+    public void insertarPosteos(Collection<Posteo> values){
         EntityManager em = emf.createEntityManager();
         EntityTransaction t = em.getTransaction();
         t.begin();
@@ -55,33 +55,39 @@ public class Persistencia {
         }
         t.commit();
         em.close();
-        emf.close();
     }
+    */
     
-    public static void insertarDocumento(Documento d){
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
+    public void insertarPosteos(Object[] posteos){
         EntityManager em = emf.createEntityManager();
         EntityTransaction t = em.getTransaction();
         t.begin();
-        
-        em.persist(d);
-        
+        for(int i = 0; i < posteos.length; i++){
+            if(i > 0 && i % batchSize == 0){
+                t.commit();
+                t.begin();
+                em.clear();
+            }
+           
+            em.merge(posteos[i]);
+        }
         t.commit();
         em.close();
-        emf.close();
     }
     
-    public static int obtenerCantidadDocumentos(){
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
+    public void insertarDocumento(Documento d){
         EntityManager em = emf.createEntityManager();
         EntityTransaction t = em.getTransaction();
         t.begin();
-        
+        em.persist(d);     
+        t.commit();
+        em.close();
+    }
+    
+    public int obtenerCantidadDocumentos(){
+        EntityManager em = emf.createEntityManager();         
         int N = (int) em.createNativeQuery("SELECT COUNT(*) FROM Documentos").getSingleResult();
-        
-        t.commit();
         em.close();
-        emf.close();
         
         return N;
     }
@@ -107,20 +113,15 @@ public class Persistencia {
     }    
 */
     
-    public static List<Posteo> buscarPosteos(String palabra, int R){
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
+    public List<Posteo> buscarPosteos(String palabra, int R){
         EntityManager em = emf.createEntityManager();
-        EntityTransaction t = em.getTransaction();
-        t.begin();
         List<Posteo> posteos = em.createNativeQuery("SELECT TOP " + R + " p.id_palabra, p.id_documento, p.tf "
             + "FROM Posteo p "
             + "JOIN Documentos d ON p.id_documento = d.id "
             + "JOIN Palabras pa ON p.id_palabra = pa.id "
             + "WHERE pa.palabra = '" + palabra + "' "
             + "ORDER BY p.tf DESC", Posteo.class).getResultList();       
-        t.commit();
-        em.close();
-        emf.close();
+        em.close(); 
         
         return posteos;
     }    
