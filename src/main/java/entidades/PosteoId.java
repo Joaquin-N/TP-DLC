@@ -14,6 +14,22 @@ public class PosteoId implements Serializable{
         this.palabra = id_palabra;
     }
 
+    public int getDocumento() {
+        return documento;
+    }
+
+    public void setDocumento(int documento) {
+        this.documento = documento;
+    }
+
+    public int getPalabra() {
+        return palabra;
+    }
+
+    public void setPalabra(int palabra) {
+        this.palabra = palabra;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
