@@ -1,5 +1,6 @@
 package indexacion;
 
+import com.sun.org.apache.xerces.internal.impl.dv.xs.DateTimeDV;
 import entidades.Documento;
 import entidades.Posteo;
 import entidades.Palabra;
@@ -16,12 +17,14 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Date;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
+import main.Globals;
 
 @SessionScoped
 public class Indexador implements Serializable{
-    private final String path = FileSystemView.getFileSystemView().getHomeDirectory() + "\\DLC";
+    private int count = 0;
 
     @Inject Persistencia p;
     
@@ -31,12 +34,26 @@ public class Indexador implements Serializable{
     
     public Vocabulario generarIndice(){
         try{
-            
+            count = 0;
+            long startTime = System.currentTimeMillis();
             for(File a : obtenerArchivos())
                 indexarArchivo(a);
+            long endTime = System.currentTimeMillis();
             
+            long minutos = (endTime - startTime) / 60000;
+            long segundos = ((endTime - startTime) % 60000) / 1000;
+            
+            System.out.println("--- Indexación finalizada. Tiempo transcurrido: " + minutos + "' " + segundos + "''");
+            
+            startTime = System.currentTimeMillis();
             v = p.cargarVocabulario();            
-             
+            endTime = System.currentTimeMillis();      
+            
+            minutos = (endTime - startTime) / 60000;
+            segundos = ((endTime - startTime) % 60000) / 1000;
+            
+            System.out.println("--- Carga de vocabulario finalizada. Tiempo transcurrido: " + minutos + "' " + segundos + "''");
+            
             return v;
 
         } catch (Exception e) {
@@ -45,11 +62,18 @@ public class Indexador implements Serializable{
         }
     }
     
-    public String agregarArchivo(){
-        File archivo = new File(path + "2/1donq10.txt");
+    public String agregarArchivo(File archivo){
+        // Recupera las palabras existentes en la BD
+        diccionario = p.buscarDiccionario();
+        indexarArchivo(archivo);      
+        return "OK"; 
+    }
+    
+    public String agregarArchivo(String path){
+        File archivo = new File(path);
         try{ 
             // Copia el archivo al directorio con los demás archivos
-            File nuevo = new File(path, archivo.getName());
+            File nuevo = new File(Globals.docs_path, archivo.getName());
             if(nuevo.exists()){
                 return "Archivo ya existe";
             }
@@ -68,6 +92,7 @@ public class Indexador implements Serializable{
 
     // Lista los archivos del directorio
     private File[] obtenerArchivos() throws Exception{
+        String path = Globals.docs_path;
         File carpeta = new File(path);
         File[] archivos = carpeta.listFiles();
         if (archivos.length == 0) throw new Exception("No se encontraron archivos en la ruta " + path);
@@ -78,16 +103,21 @@ public class Indexador implements Serializable{
         HashMap<Palabra, Posteo> posteos = new HashMap<>();
         Documento doc = new Documento(archivo.getName());
         
-        p.insertarDocumento(doc);
+        count++;
+        System.out.println("--- Indexando archivo [" + count + "] " + doc.getDocumento());
+        
+        //p.insertarDocumento(doc);
         
         try (Scanner sc = new Scanner(new BufferedReader(new FileReader(archivo))))
         {
             // Delimitadores de palabras
-            sc.useDelimiter("[^a-zA-Z\\-']");        
+            sc.useDelimiter("[^a-zA-Z']");        
             while(sc.hasNext()) {
                 String palabra = sc.next();
-                if (!palabra.isEmpty())
+                if (!palabra.isEmpty()){
+                    palabra = palabra.toLowerCase();
                     agregarPosteo(posteos, palabra, doc);
+                }
             }       
                                
             // Inserta todos los terminos del documento a la bd

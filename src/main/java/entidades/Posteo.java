@@ -8,12 +8,12 @@ import javax.persistence.*;
 @IdClass(PosteoId.class)
 public class Posteo implements Serializable {
     @Id
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne
     @JoinColumn(name = "id_palabra")
     private Palabra palabra;
     
     @Id
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne
     @JoinColumn(name = "id_documento")
     private Documento documento;
     
@@ -33,6 +33,14 @@ public class Posteo implements Serializable {
         this.palabra = palabra;
         this.documento = documento;
         this.tf = tf;
+    }
+
+    public Palabra getPalabra() {
+        return palabra;
+    }
+
+    public void setPalabra(Palabra palabra) {
+        this.palabra = palabra;
     }
 
     public Documento getDocumento() {

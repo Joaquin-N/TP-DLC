@@ -1,7 +1,9 @@
 package main;
 
+import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+import resources.JavaEE8Resource;
 
 /**
  * Configures JAX-RS for the application.
@@ -9,4 +11,5 @@ import javax.ws.rs.core.Application;
  */
 @ApplicationPath("/")
 public class JAXRSConfiguration extends Application {    
+  
 }

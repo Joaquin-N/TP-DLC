@@ -45,36 +45,28 @@ public class Persistencia {
         return dic;
     }
     
-    /*
-    public void insertarPosteos(Collection<Posteo> values){
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction t = em.getTransaction();
-        t.begin();
-        for(Posteo p : values){
-            em.merge(p);
-        }
-        t.commit();
-        em.close();
-    }
-    */
-    
     public void insertarPosteos(Object[] posteos){
         EntityManager em = emf.createEntityManager();
         EntityTransaction t = em.getTransaction();
         t.begin();
-        for(int i = 0; i < posteos.length; i++){
-            if(i > 0 && i % batchSize == 0){
-                t.commit();
-                t.begin();
-                em.clear();
-            }
-           
-            em.merge(posteos[i]);
+        for(Object o : posteos){   
+            Posteo p = (Posteo) o;
+            Documento doc = p.getDocumento();
+            if(doc.getId() == null)
+                em.persist(doc);
+            else
+                em.merge(doc);
+            Palabra pal = p.getPalabra();
+            if(pal.getId() == null)
+                em.persist(pal);
+            else
+                em.merge(pal);
+            em.persist(p);
         }
         t.commit();
         em.close();
-    }
-    
+    } 
+       
     public void insertarDocumento(Documento d){
         EntityManager em = emf.createEntityManager();
         EntityTransaction t = em.getTransaction();
@@ -91,28 +83,7 @@ public class Persistencia {
         
         return N;
     }
-    
-    /*
-    public void buscarPosteos(Termino termino){
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction t = em.getTransaction();
-        t.begin();
-        Stream<Posteo> posteos = em.createNativeQuery("SELECT TOP " + R + " p.id_palabra, p.id_documento, p.tf "
-            + "FROM Posteo p "
-            + "JOIN Documentos d ON p.id_documento = d.id "
-            + "JOIN Palabras pa ON p.id_palabra = pa.id "
-            + "WHERE pa.palabra = '" + termino.getPalabra() + "' "
-            + "ORDER BY p.tf DESC", Posteo.class).getResultStream();
-        
-        posteos.forEach((p) -> rank.procesarDocumento(p.getDocumento(), p.getTf(), termino.getNr()));
-        
-        t.commit();
-        em.close();
-        emf.close();  
-    }    
-*/
-    
+
     public List<Posteo> buscarPosteos(String palabra, int R){
         EntityManager em = emf.createEntityManager();
         List<Posteo> posteos = em.createNativeQuery("SELECT TOP " + R + " p.id_palabra, p.id_documento, p.tf "

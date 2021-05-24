@@ -7,10 +7,13 @@ import persistencia.Persistencia;
 import entidades.Termino;
 import entidades.Vocabulario;
 import entidades.Posteo;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.Serializable;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
+import main.Globals;
 
 @SessionScoped
 public class Buscador implements Serializable{  
@@ -19,7 +22,6 @@ public class Buscador implements Serializable{
     Vocabulario v;
     int R = 3; //cantidad de docuemntos relevantes
     int N; //cantidad de documentos
-    Ranking rank; 
 
     public Buscador() {
         
@@ -30,11 +32,10 @@ public class Buscador implements Serializable{
     private void initialize(){
         v = p.cargarVocabulario();
         N = p.obtenerCantidadDocumentos();
-        rank = new Ranking(N);
     }
     
     public List<Documento> buscar(String querry){
-        String[] palabras = querry.split(" ");
+        String[] palabras = querry.split("\\+");
         
         ArrayList<Termino> terminos = new ArrayList(palabras.length);
         
@@ -48,6 +49,7 @@ public class Buscador implements Serializable{
         
         // Ordenamos de menor a mayor nr (cantidad de documentos en los que aparece el término)
         terminos.sort((t1, t2) -> t1.compareTo(t2));
+        Ranking rank = new Ranking(N);
         
          // Buscamos los R primeros documentos de cada término y los ubicamos en el ranking
         for (Termino t : terminos) {
@@ -57,9 +59,19 @@ public class Buscador implements Serializable{
         
         // Prints de testeo
         System.out.println(terminos);
-        System.out.println(rank.getRanking());
+        System.out.println(rank.getRanking(R));
         
-        return rank.getRanking();
+        return rank.getRanking(R);
+    }
+    
+    public File buscarArchivo(String nombre){
+        File carpeta = new File(Globals.docs_path);
+        File[] archivos = carpeta.listFiles();
+        for(File f : archivos)
+            if(f.getName().equals(nombre))
+                return f;
+        
+        return null;
     }
     
 }

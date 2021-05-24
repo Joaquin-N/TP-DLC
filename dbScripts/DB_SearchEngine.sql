@@ -26,7 +26,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Palabras](
 	[id] [int] IDENTITY(1,1) NOT NULL,
-	[palabra] [varchar](50) NOT NULL,
+	[palabra] [varchar](100) NOT NULL,
  CONSTRAINT [PK_Palabras] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

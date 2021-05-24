@@ -2,6 +2,7 @@ package busqueda;
 
 import java.util.ArrayList;
 import entidades.Documento;
+import java.util.List;
 
 public class Ranking {
     int N;
@@ -29,10 +30,10 @@ public class Ranking {
         d.sumarIr(wr);
     }
     
-    public ArrayList<Documento> getRanking(){
+    public List<Documento> getRanking(int R){
         // Ordenamos los documentos por mayor ir
         ld.sort((d1, d2) -> d1.compareTo(d2));
-        return ld;
+        return ld.subList(0, R);
     }
     
     
