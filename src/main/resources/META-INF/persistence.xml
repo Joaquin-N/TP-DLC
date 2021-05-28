@@ -5,7 +5,7 @@
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
-      <property name="javax.persistence.jdbc.url" value="jdbc:sqlserver://localHost;databaseName=SearchEngine2"/>
+      <property name="javax.persistence.jdbc.url" value="jdbc:sqlserver://localHost;databaseName=SearchEngine"/>
       <property name="javax.persistence.jdbc.user" value="cjn"/>
       <property name="javax.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
       <property name="javax.persistence.jdbc.password" value="1234"/>

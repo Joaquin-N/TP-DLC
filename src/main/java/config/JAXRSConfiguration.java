@@ -1,6 +1,8 @@
-package main;
+package config;
 
+import vocabulario.Vocabulario;
 import java.util.Set;
+import javax.inject.Inject;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 import resources.JavaEE8Resource;
@@ -11,5 +13,4 @@ import resources.JavaEE8Resource;
  */
 @ApplicationPath("/")
 public class JAXRSConfiguration extends Application {    
-  
 }

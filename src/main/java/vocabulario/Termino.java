@@ -1,4 +1,4 @@
-package entidades;
+package vocabulario;
 
 import java.io.Serializable;
 import javax.persistence.Entity;
@@ -50,8 +50,6 @@ public class Termino implements Serializable, Comparable<Termino>{
 
     @Override
     public String toString() {
-        return " nr=" + nr + " | palabra=" + palabra; // + "<br>";
+        return " nr=" + nr + " - palabra=" + palabra; // + "<br>";
     }
-
-    
 }

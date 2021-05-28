@@ -33,6 +33,8 @@ public class Ranking {
     public List<Documento> getRanking(int R){
         // Ordenamos los documentos por mayor ir
         ld.sort((d1, d2) -> d1.compareTo(d2));
+        
+        if(R == -1 || R > ld.size()) return ld;
         return ld.subList(0, R);
     }
     

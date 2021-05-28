@@ -1,6 +1,7 @@
 
-package main;
+package apis;
 
+import config.Globals;
 import indexacion.Indexador;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,14 +9,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
@@ -27,36 +26,26 @@ public class ApiIndexador {
     @Path("/indexar")
     public Response indexar(){
         return Response.ok(indexador.generarIndice()).build();
-    }
-    
-    @GET
-    @Path("/test")
-    public Response test(){
-        System.out.println("OK");
-        return Response.ok("OK").build();
-    }
-    
-    @GET
-    @Path("/agregararchivo/{path}")
-    public Response agregarArchivo(@PathParam("path") String path){
-        indexador.agregarArchivo(path);
-        return Response.ok("OK").build();
-    }
+    }   
         
     @POST
     @Path("/nuevoarchivo")
-    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     public Response reciveFile(@Context HttpHeaders headers, InputStream fileInputStream) {
         MultivaluedMap<String, String> map = headers.getRequestHeaders();
-          System.out.println("Nuevo archivo");
+          System.out.println("--- Procesando nuevo archivo");
         //getFileName
         String fileName = getFileName(map);
         
         OutputStream out = null;
 
         String filePath = Globals.docs_path + "/" + fileName;
+        File archivo = new File(filePath);
+        if(archivo.exists()){
+            System.out.println("--- ERROR. Archivo " + fileName + " ya está indexado");
+            return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+        }
         try {
-            out = new FileOutputStream(new File(filePath));
+            out = new FileOutputStream(archivo);
             byte[] buf = new byte[1024];
             int len;
             while ((len = fileInputStream.read(buf)) > 0) {
@@ -74,10 +63,9 @@ public class ApiIndexador {
                 e.printStackTrace();
             }
         }
-        
-        indexador.agregarArchivo(new File(filePath));
-             
-        return Response.status(Response.Status.OK).build();
+        System.out.println("--- Archivo " + fileName + " indexado");
+        boolean result = indexador.agregarArchivo(new File(filePath));
+        return Response.status(result ? Response.Status.OK : Response.Status.NOT_ACCEPTABLE).build();
     }
 
     private String getFileName(MultivaluedMap<String, String> headers) {
@@ -91,7 +79,7 @@ public class ApiIndexador {
             }
         }  
         } catch (Exception e) {
-            System.out.println("getFileName() "+e.getLocalizedMessage());
+            //System.out.println("getFileName() "+e.getLocalizedMessage());
         }
        
         return "";

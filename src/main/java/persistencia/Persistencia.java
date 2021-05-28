@@ -1,8 +1,7 @@
 package persistencia;
 
-import entidades.Vocabulario;
-import entidades.Termino;
-import java.util.Collection;
+import vocabulario.Vocabulario;
+import vocabulario.Termino;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -18,15 +17,13 @@ import javax.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class Persistencia {
     EntityManagerFactory emf; 
-    int batchSize = 100;
 
     @PostConstruct
     public void initialize(){
         emf = Persistence.createEntityManagerFactory("PU-SearchEngine");
     }    
     
-    public Vocabulario cargarVocabulario(){
-        Vocabulario v = new Vocabulario();
+    public void cargarVocabulario(Vocabulario v){
         EntityManager em = emf.createEntityManager();
         em.createNativeQuery(                  
             "SELECT pa.palabra, COUNT(*) as nr, MAX(p.tf) as max_tf "
@@ -34,7 +31,6 @@ public class Persistencia {
             + "GROUP BY pa.palabra", Termino.class).getResultStream().forEach(
             (x)-> v.insertarTermino((Termino) x));
         em.close();
-        return v;
     }
     
     public HashMap<String, Palabra> buscarDiccionario(){
@@ -45,8 +41,9 @@ public class Persistencia {
         return dic;
     }
     
-    public void insertarPosteos(Object[] posteos){
+    public boolean insertarPosteos(Object[] posteos){
         EntityManager em = emf.createEntityManager();
+        try{
         EntityTransaction t = em.getTransaction();
         t.begin();
         for(Object o : posteos){   
@@ -64,17 +61,14 @@ public class Persistencia {
             em.persist(p);
         }
         t.commit();
-        em.close();
+        } catch(Exception e){
+            System.out.println("--- ERROR. Documento duplicado");
+            return false;
+        } finally{
+            em.close();
+        }
+        return true;
     } 
-       
-    public void insertarDocumento(Documento d){
-        EntityManager em = emf.createEntityManager();
-        EntityTransaction t = em.getTransaction();
-        t.begin();
-        em.persist(d);     
-        t.commit();
-        em.close();
-    }
     
     public int obtenerCantidadDocumentos(){
         EntityManager em = emf.createEntityManager();         
@@ -95,5 +89,5 @@ public class Persistencia {
         em.close(); 
         
         return posteos;
-    }    
+    }   
 }

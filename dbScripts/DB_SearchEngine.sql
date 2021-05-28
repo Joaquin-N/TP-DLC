@@ -12,7 +12,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Documentos](
 	[id] [int] IDENTITY(1,1) NOT NULL,
-	[documento] [varchar](50) NOT NULL,
+	[documento] [varchar](50) UNIQUE NOT NULL,
  CONSTRAINT [PK_Documentos] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -26,7 +26,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Palabras](
 	[id] [int] IDENTITY(1,1) NOT NULL,
-	[palabra] [varchar](100) NOT NULL,
+	[palabra] [varchar](100) UNIQUE NOT NULL,
  CONSTRAINT [PK_Palabras] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

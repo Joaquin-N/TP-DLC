@@ -4,37 +4,30 @@ import entidades.Documento;
 import java.util.ArrayList;
 import java.util.List;
 import persistencia.Persistencia;
-import entidades.Termino;
-import entidades.Vocabulario;
+import vocabulario.Termino;
+import vocabulario.Vocabulario;
 import entidades.Posteo;
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.Serializable;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
-import main.Globals;
 
 @SessionScoped
 public class Buscador implements Serializable{  
     @Inject Persistencia p;
     
-    Vocabulario v;
-    int R = 3; //cantidad de docuemntos relevantes
+    @Inject Vocabulario v;
     int N; //cantidad de documentos
 
-    public Buscador() {
-        
-        //buscar("simple test of working");
+    public Buscador() {        
     }  
     
     @PostConstruct
     private void initialize(){
-        v = p.cargarVocabulario();
         N = p.obtenerCantidadDocumentos();
     }
     
-    public List<Documento> buscar(String querry){
+    public List<Documento> buscar(String querry, int R){
         String[] palabras = querry.split("\\+");
         
         ArrayList<Termino> terminos = new ArrayList(palabras.length);
@@ -59,19 +52,8 @@ public class Buscador implements Serializable{
         
         // Prints de testeo
         System.out.println(terminos);
-        System.out.println(rank.getRanking(R));
+        System.out.println(rank.getRanking(-1));
         
         return rank.getRanking(R);
-    }
-    
-    public File buscarArchivo(String nombre){
-        File carpeta = new File(Globals.docs_path);
-        File[] archivos = carpeta.listFiles();
-        for(File f : archivos)
-            if(f.getName().equals(nombre))
-                return f;
-        
-        return null;
-    }
-    
+    }    
 }

@@ -73,7 +73,7 @@ public class Documento implements Serializable, Comparable<Documento> {
     
     @Override
     public String toString() {
-        return documento + " | " + ir;
+        return documento + " - " + ir;
     }
  
     
