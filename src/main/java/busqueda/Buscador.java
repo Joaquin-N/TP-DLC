@@ -8,24 +8,16 @@ import vocabulario.Termino;
 import vocabulario.Vocabulario;
 import entidades.Posteo;
 import java.io.Serializable;
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 
 @SessionScoped
 public class Buscador implements Serializable{  
     @Inject Persistencia p;
-    
     @Inject Vocabulario v;
-    int N; //cantidad de documentos
 
     public Buscador() {        
     }  
-    
-    @PostConstruct
-    private void initialize(){
-        N = p.obtenerCantidadDocumentos();
-    }
     
     public List<Documento> buscar(String querry, int R){
         String[] palabras = querry.split("\\+");
@@ -42,7 +34,7 @@ public class Buscador implements Serializable{
         
         // Ordenamos de menor a mayor nr (cantidad de documentos en los que aparece el término)
         terminos.sort((t1, t2) -> t1.compareTo(t2));
-        Ranking rank = new Ranking(N);
+        Ranking rank = new Ranking(v.getCantidadDocumentos());
         
          // Buscamos los R primeros documentos de cada término y los ubicamos en el ranking
         for (Termino t : terminos) {
@@ -51,8 +43,8 @@ public class Buscador implements Serializable{
         }
         
         // Prints de testeo
-        System.out.println(terminos);
-        System.out.println(rank.getRanking(-1));
+        System.out.println("Terminos: " + terminos);
+        System.out.println("Ranking: " + rank.getRanking(-1));
         
         return rank.getRanking(R);
     }    

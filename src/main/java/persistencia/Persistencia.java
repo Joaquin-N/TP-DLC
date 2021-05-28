@@ -30,6 +30,7 @@ public class Persistencia {
             + "FROM Posteo p JOIN Palabras pa ON pa.id = p.id_palabra "
             + "GROUP BY pa.palabra", Termino.class).getResultStream().forEach(
             (x)-> v.insertarTermino((Termino) x));
+        v.setN((int) em.createNativeQuery("SELECT COUNT(*) FROM Documentos").getSingleResult());
         em.close();
     }
     
@@ -69,14 +70,6 @@ public class Persistencia {
         }
         return true;
     } 
-    
-    public int obtenerCantidadDocumentos(){
-        EntityManager em = emf.createEntityManager();         
-        int N = (int) em.createNativeQuery("SELECT COUNT(*) FROM Documentos").getSingleResult();
-        em.close();
-        
-        return N;
-    }
 
     public List<Posteo> buscarPosteos(String palabra, int R){
         EntityManager em = emf.createEntityManager();

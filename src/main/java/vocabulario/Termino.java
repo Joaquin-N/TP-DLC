@@ -50,6 +50,6 @@ public class Termino implements Serializable, Comparable<Termino>{
 
     @Override
     public String toString() {
-        return " nr=" + nr + " - palabra=" + palabra; // + "<br>";
+        return palabra + " - " + nr;
     }
 }

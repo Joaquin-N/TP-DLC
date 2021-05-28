@@ -11,6 +11,7 @@ import persistencia.Persistencia;
 @Startup
 public class Vocabulario {
     HashMap<String, Termino> v;
+    int N; //Cantidad de documentos
     
     @Inject
     Persistencia p;
@@ -35,6 +36,14 @@ public class Vocabulario {
         return v;
     }
     
+    public void setN(int N){
+        this.N = N;
+    }
+    
+    public int getCantidadDocumentos(){
+        return N;
+    }
+    
     public void insertarTermino(Termino t){
         v.put(t.getPalabra(), t);        
     }
@@ -45,10 +54,5 @@ public class Vocabulario {
     
     public void recargar(){
         initialize();
-    }
-    
-    @Override
-    public String toString() {
-        return "Terminos totales: " + v.size() + "<br>" + v.values().toString();
     }
 }
