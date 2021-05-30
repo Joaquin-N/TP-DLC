@@ -63,8 +63,8 @@ public class ApiIndexador {
                 e.printStackTrace();
             }
         }
-        System.out.println("--- Archivo " + fileName + " indexado");
         boolean result = indexador.agregarArchivo(new File(filePath));
+        System.out.println("--- Archivo " + fileName + " indexado");
         return Response.status(result ? Response.Status.OK : Response.Status.NOT_ACCEPTABLE).build();
     }
 
